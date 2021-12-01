@@ -8,7 +8,10 @@ const Errors = require("../api/errors/list-error.js");
 const WARNINGS = {
     createUnsupportedKeys: {
         code: `${Errors.Create.UC_CODE}unsupportedKeys`
-    }
+    },
+    getUnsupportedKeys: {
+      code: `${Errors.Get.UC_CODE}unsupportedKeys`
+  }
 };
 
 class ListAbl {
@@ -19,6 +22,39 @@ class ListAbl {
     this.dao = DaoFactory.getDao("list");
   
   }
+
+  async get(awid, dtoIn, uuAppErrorMap) {
+    // HDS 1
+
+    const validationResult = this.validator.validate("listGetDtoInType", dtoIn);
+    uuAppErrorMap = ValidationHelper.processValidationResult(
+        dtoIn,
+        validationResult,
+        WARNINGS.getUnsupportedKeys.code,
+        Errors.Get.InvalidDtoIn
+        )     
+
+    // HDS 2
+
+    const uuTodos = await this.mainDao.getByAwid(awid);
+    if (!uuTodos) {
+      throw new Errors.Get.TodoInstanceDoesNotExist({ uuAppErrorMap }, { awid })
+  }
+
+  if (uuTodos.state !== 'active') {
+      throw new Errors.Get.TodoInstanceIsNotInProperState({ uuAppErrorMap }, 
+      { awid, currentState: uuTodos.state, expectedState: "active"})
+  }
+    // HDS 3
+
+    const uuTodo = await this.dao.get(awid, dtoIn.id);
+        if (!uuTodo) {
+            throw new Errors.Get.ListDoesNotExist({ uuAppErrorMap }, {todo: dtoIn.id }, { awid });
+        }
+    // HDS 4
+        return {...uuTodo, uuAppErrorMap };
+    }
+
 
   async create(awid, dtoIn, uuAppErrorMap) {
     // HDS 1
@@ -39,7 +75,6 @@ class ListAbl {
       throw new Errors.Create.TodoInstanceIsNotInProperState({ uuAppErrorMap }, 
       { awid, currentState: uuTodos.state, expectedState: "active"})
   }
-
 
     // HDS 3
     if(dtoIn.deadline){

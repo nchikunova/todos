@@ -4,7 +4,7 @@
     "useCaseMap": {}
   },
   "*": {
-    "profileList": ["Authorities","Executives","AwidLicenseOwner","Public"],
+    "profileList": ["Authorities","Executives","AwidLicenseOwner","Public","Readers"],
     "useCaseMap": {
       "sys/uuAppWorkspace/init": {
         "sysStateList": ["created"],
@@ -20,6 +20,10 @@
       "list/create": {
         "sysStateList": ["active"],
         "profileList": ["Authorities","Executives"]
+      },
+      "list/get": {
+        "sysStateList": ["active"],
+        "profileList": ["Authorities","Executives","Readers"]
       }
     }
   }
