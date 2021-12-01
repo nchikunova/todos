@@ -45,6 +45,16 @@
         "realization": "api/controllers/ItemController.update",
         "httpMethod": "POST",
         "type": "CMD"
+      },
+      "list/delete": {
+        "realization": "api/controllers/ListController.delete",
+        "httpMethod": "POST",
+        "type": "CMD"
+      },
+      "item/setFinalState": {
+        "realization": "api/controllers/ItemController.setFinalState",
+        "httpMethod": "POST",
+        "type": "CMD"
       }
     }
   }

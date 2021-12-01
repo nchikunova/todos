@@ -40,6 +40,14 @@
       "item/update": {
         "sysStateList": ["active"],
         "profileList": ["Authorities","Executives"]
+      },
+      "list/delete": {
+        "sysStateList": ["active"],
+        "profileList": ["Authorities","Executives"]
+      },
+      "item/setFinalState": {
+        "sysStateList": ["active"],
+        "profileList": ["Authorities","Executives"]
       }
     }
   }

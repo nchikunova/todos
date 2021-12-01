@@ -132,7 +132,50 @@ const Update = {
   },
 };
 
+const SetFinalState = {
+  UC_CODE: `${ITEM_ERROR_PREFIX}setFinalState/`,
+  InvalidDtoIn: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${SetFinalState.UC_CODE}invalidDtoIn`;
+      this.message = 	'DtoIn is not valid.';
+    }
+  },
+  TodoInstanceDoesNotExist: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${SetFinalState.UC_CODE}todoInstanceDoesNotExist`;
+      this.message = 	'TodoInstance does not exist.';
+    }
+  },
+  
+  TodoInstanceIsNotInProperState: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${SetFinalState.UC_CODE}todoInstanceIsNotInProperState`;
+      this.message = 	'The application is not in proper state.';
+    }
+  },
+  ItemDoesNotExist: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${SetFinalState.UC_CODE}itemDoesNotExist`;
+      this.message = 	'Item with given id does not exist.';
+    }
+  },
+
+  ItemIsNotInProperState: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${SetFinalState.UC_CODE}itemIsNotInProperState`;
+      this.message = 	'Item is not in proper state.';
+    }
+  },
+
+};
+
 module.exports = {
+  SetFinalState,
   Update,
   Get,
   Create

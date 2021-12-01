@@ -121,7 +121,52 @@ const Update = {
   },
 }
 
+const Delete = {
+  UC_CODE: `${LIST_ERROR_PREFIX}delete/`,
+  InvalidDtoIn: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${Get.UC_CODE}invalidDtoIn`;
+      this.message = 	'DtoIn is not valid.';
+    }
+  },
+  
+  TodoInstanceDoesNotExist: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${Delete.UC_CODE}todoInstanceDoesNotExist`;
+      this.message = 	'TodoInstance does not exist.';
+    }
+  },
+
+  TodoInstanceIsNotInProperState: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${Delete.UC_CODE}todoInstanceIsNotInProperState`;
+      this.message = 	'The application is not in proper state.';
+    }
+  },
+
+  ListDoesNotExist: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${Delete.UC_CODE}listDoesNotExist`;
+      this.message = 	'List with given id does not exist.';
+    }
+  },
+
+  ListContainsActiveItems: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${Delete.UC_CODE}listContainsActiveItems`;
+      this.message = 	'List with given id does not exist.';
+    }
+  },
+};  
+
+
 module.exports = {
+  Delete,
   Update,
   Get,
   Create

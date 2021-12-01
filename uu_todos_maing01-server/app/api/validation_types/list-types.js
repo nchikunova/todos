@@ -14,4 +14,9 @@ const listCreateDtoInType = shape({
     name: string(1,30),
     description: uu5String(),
     deadline: date()
-  })
+  });
+
+  const listDeleteDtoInType = shape({
+    id: id().isRequired(),
+    forceDelete: boolean()
+  });

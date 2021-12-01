@@ -6,15 +6,19 @@ const { ValidationHelper } = require("uu_appg01_server").AppServer;
 const Errors = require("../api/errors/list-error.js");
 
 const WARNINGS = {
-    createUnsupportedKeys: {
+  createUnsupportedKeys: {
         code: `${Errors.Create.UC_CODE}unsupportedKeys`
     },
     getUnsupportedKeys: {
       code: `${Errors.Get.UC_CODE}unsupportedKeys`
   },
-updateUnsupportedKeys: {
+  updateUnsupportedKeys: {
     code: `${Errors.Update.UC_CODE}unsupportedKeys`
 },
+deleteUnsupportedKeys: {
+  code: `${Errors.Delete.UC_CODE}unsupportedKeys`
+},
+
 };
 
 class ListAbl {
@@ -24,6 +28,10 @@ class ListAbl {
     this.mainDao = DaoFactory.getDao("todoInstance");
     this.dao = DaoFactory.getDao("list");
   
+  }
+
+  async delete(awid, dtoIn) {
+    
   }
 
   async update(awid, dtoIn, uuAppErrorMap) {
