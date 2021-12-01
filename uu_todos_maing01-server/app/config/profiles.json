@@ -28,6 +28,18 @@
       "list/update": {
         "sysStateList": ["active"],
         "profileList": ["Authorities","Executives"]
+      },
+      "item/create": {
+        "sysStateList": ["active"],
+        "profileList": ["Authorities","Executives"]
+      },
+      "item/get": {
+        "sysStateList": ["active"],
+        "profileList": ["Authorities","Executives","Readers"]
+      },
+      "item/update": {
+        "sysStateList": ["active"],
+        "profileList": ["Authorities","Executives"]
       }
     }
   }
