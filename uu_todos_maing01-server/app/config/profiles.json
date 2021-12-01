@@ -24,6 +24,10 @@
       "list/get": {
         "sysStateList": ["active"],
         "profileList": ["Authorities","Executives","Readers"]
+      },
+      "list/update": {
+        "sysStateList": ["active"],
+        "profileList": ["Authorities","Executives"]
       }
     }
   }

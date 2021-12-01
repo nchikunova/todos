@@ -80,7 +80,49 @@ const Get = {
   },
 };
 
+const Update = {
+  UC_CODE: `${LIST_ERROR_PREFIX}update/`,
+  InvalidDtoIn: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${Update.UC_CODE}invalidDtoIn`;
+      this.message = 	'DtoIn is not valid.';
+    }
+  },
+
+  TodoInstanceDoesNotExist: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${Update.UC_CODE}todoInstanceDoesNotExist`;
+      this.message = 	'TodoInstance does not exist.';
+    }
+  },
+  TodoInstanceIsNotInProperState: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${Update.UC_CODE}todoInstanceIsNotInProperState`;
+      this.message = 	'The application is not in proper state.';
+    }
+  },
+  DeadlineDateIsFromThePast: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${Update.UC_CODE}deadlineDateIsFromThePast`;
+      this.message = 	'Deadline date is from the past and therefore cannot be met.';
+    }
+  },
+
+  ListDaoUpdateFailed: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${Update.UC_CODE}listDaoUpdateFailed`;
+      this.message = 	'Update list by list DAO update failed.';
+    }
+  },
+}
+
 module.exports = {
+  Update,
   Get,
   Create
 };

@@ -11,7 +11,10 @@ const WARNINGS = {
     },
     getUnsupportedKeys: {
       code: `${Errors.Get.UC_CODE}unsupportedKeys`
-  }
+  },
+updateUnsupportedKeys: {
+    code: `${Errors.Update.UC_CODE}unsupportedKeys`
+},
 };
 
 class ListAbl {
@@ -22,6 +25,57 @@ class ListAbl {
     this.dao = DaoFactory.getDao("list");
   
   }
+
+  async update(awid, dtoIn, uuAppErrorMap) {
+      // HDS 1 
+      const validationResult = this.validator.validate("listUpdateDtoInType", dtoIn);
+      uuAppErrorMap = ValidationHelper.processValidationResult(
+          dtoIn,
+          validationResult,
+          WARNINGS.updateUnsupportedKeys.code,
+          Errors.Update.InvalidDtoIn
+          )   
+
+      // HDS 2 
+      const uuTodos = await this.mainDao.getByAwid(awid);
+      if (!uuTodos) {
+        throw new Errors.Update.TodoInstanceDoesNotExist({ uuAppErrorMap }, { awid })
+    }
+  
+    if (uuTodos.state !== 'active') {
+        throw new Errors.Update.TodoInstanceIsNotInProperState({ uuAppErrorMap }, 
+        { awid, currentState: uuTodos.state, expectedState: "active"})
+    }
+      // HDS 3 
+
+      if(dtoIn.deadline){
+        const inputDate = new Date(dtoIn.deadline);
+        const currentDate = new Date();
+        if(inputDate.getTime() < currentDate.getTime()){
+          throw new Errors.Update.DeadlineDateIsFromThePast({ uuAppErrorMap }, { deadline: dtoIn.deadline });
+        }
+      }
+
+      // HDS 4
+      const uuObject = { 
+        ...dtoIn,
+        awid,
+      };
+
+      let updatedList = null;
+      try {
+        updatedList = await this.dao.update(uuObject);
+      } catch (err) {
+          throw new Errors.Update.ListDaoUpdateFailed({ uuAppErrorMap }, err);
+      }
+
+      // HDS 5 
+      return {
+          ...updatedList,
+          uuAppErrorMap
+      };
+  }
+
 
   async get(awid, dtoIn, uuAppErrorMap) {
     // HDS 1
@@ -47,12 +101,12 @@ class ListAbl {
   }
     // HDS 3
 
-    const uuTodo = await this.dao.get(awid, dtoIn.id);
-        if (!uuTodo) {
+    const getList = await this.dao.get(awid, dtoIn.id);
+        if (!getList) {
             throw new Errors.Get.ListDoesNotExist({ uuAppErrorMap }, {todo: dtoIn.id }, { awid });
         }
     // HDS 4
-        return {...uuTodo, uuAppErrorMap };
+        return {...getList, uuAppErrorMap };
     }
 
 
