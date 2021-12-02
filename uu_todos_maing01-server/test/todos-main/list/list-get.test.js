@@ -1,15 +1,16 @@
 const { TestHelper } = require("uu_appg01_server-test");
 
 const useCase = "list/get";
+const CMD = "list/get";
 
-beforeAll(async () => {
+beforeEach(async () => {
   await TestHelper.setup();
   await TestHelper.initUuSubAppInstance();
   await TestHelper.createUuAppWorkspace();
   await TestHelper.initUuAppWorkspace({ "uuAppProfileAuthorities": "urn:uu:GGPLUS4U", "code":"1454545", "name":"Nika" }) 
 });
 
-afterAll(async () => {
+afterEach(async () => {
   await TestHelper.teardown();
 });
 
@@ -25,5 +26,4 @@ describe("Test list/get", () => {
     expect(result.status).toEqual(200);
     expect(result.data.uuAppErrorMap).toBeDefined();
   });
-
 });
