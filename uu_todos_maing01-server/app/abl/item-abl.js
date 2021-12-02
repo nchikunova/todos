@@ -106,7 +106,7 @@ if (todoInstance.state !== 'active') {
         { item: dtoIn.itemCode }
       );   }
 
-   if (getItem && getItem.state !== 'completted') {
+   if (getItem && getItem.state === 'completed') {
     throw new Errors.Delete.ItemIsNotInCorectState({ uuAppErrorMap }, 
     { awid, currentState: getItem.state, expectedState: ["active", "cancelled"]})
 }

@@ -188,7 +188,7 @@ TodoInstanceIsNotInProperState: class extends TodosMainUseCaseError {
     this.code = `${List.UC_CODE}todoInstanceIsNotInProperState`;
     this.message = 	'The application is not in proper state.';
   }
-},
+}
 
 }
 

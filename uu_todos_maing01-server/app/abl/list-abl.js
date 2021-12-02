@@ -18,10 +18,6 @@ const WARNINGS = {
   deleteUnsupportedKeys: {
   code: `${Errors.Delete.UC_CODE}unsupportedKeys`
 },
-  listDoesNotExist: {
-  code: `${Errors.Delete.UC_CODE}listDoesNotExist`,
-  message: 'List with given id does not exist.'
-},
 
   listUnsupportedKeys: {
   code: `${Errors.List.UC_CODE}listDoesNotExist`
