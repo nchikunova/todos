@@ -20,3 +20,10 @@ const listCreateDtoInType = shape({
     id: id().isRequired(),
     forceDelete: boolean()
   });
+
+  const listListDtoInType = shape({
+    pageInfo: shape({
+      pageIndex: integer(),
+      pageSize: integer()
+    })
+  })

@@ -9,16 +9,23 @@ const WARNINGS = {
   createUnsupportedKeys: {
         code: `${Errors.Create.UC_CODE}unsupportedKeys`
     },
-    getUnsupportedKeys: {
+  getUnsupportedKeys: {
       code: `${Errors.Get.UC_CODE}unsupportedKeys`
   },
   updateUnsupportedKeys: {
     code: `${Errors.Update.UC_CODE}unsupportedKeys`
 },
-deleteUnsupportedKeys: {
+  deleteUnsupportedKeys: {
   code: `${Errors.Delete.UC_CODE}unsupportedKeys`
 },
+  listDoesNotExist: {
+  code: `${Errors.Delete.UC_CODE}listDoesNotExist`,
+  message: 'List with given id does not exist.'
+},
 
+  listUnsupportedKeys: {
+  code: `${Errors.List.UC_CODE}listDoesNotExist`
+},
 };
 
 class ListAbl {
@@ -27,11 +34,102 @@ class ListAbl {
     this.validator = Validator.load();
     this.mainDao = DaoFactory.getDao("todoInstance");
     this.dao = DaoFactory.getDao("list");
+    this.itemDao = DaoFactory.getDao("item"); // todoItem
+
   
   }
 
-  async delete(awid, dtoIn) {
+  async list(awid, dtoIn, uuAppErrorMap) {
+        // HDS 1
+        const validationResult = this.validator.validate("listListDtoInType", dtoIn);
+        uuAppErrorMap = ValidationHelper.processValidationResult(
+            dtoIn,
+            validationResult,
+            WARNINGS.listUnsupportedKeys.code,
+            Errors.List.InvalidDtoIn
+            )    
+
+      // HDS 2
+      const todoInstance = await this.mainDao.getByAwid(awid);
+
+      if (!todoInstance) {
+      throw new Errors.List.TodoInstanceDoesNotExist({ uuAppErrorMap }, { awid })
+    }
     
+      if (todoInstance.state !== 'active') {
+      throw new Errors.List.TodoInstanceIsNotInProperState({ uuAppErrorMap }, 
+      { awid, currentState: todoInstance.state, expectedState: "active"})
+    }
+    
+      // HDS 3
+
+      const { pageInfo, ...restDtoIn } = dtoIn;
+      const filter = { awid, ...restDtoIn };    
+      // HDS 4
+      const list = await this.dao.list(filter, pageInfo)
+      return {
+        uuAppErrorMap,
+        list
+      }
+    
+  }
+
+  async delete(awid, dtoIn, uuAppErrorMap) {
+    // HDS 1
+    const validationResult = this.validator.validate("listDeleteDtoInType", dtoIn);
+      uuAppErrorMap = ValidationHelper.processValidationResult(
+          dtoIn,
+          validationResult,
+          WARNINGS.deleteUnsupportedKeys.code,
+          Errors.Delete.InvalidDtoIn
+          )   
+
+    // default value
+
+        if(!dtoIn.forceDelete){
+          dtoIn.forceDelete = false
+        }
+    // HDS 2
+        
+    const uuTodos = await this.mainDao.getByAwid(awid);
+    if (!uuTodos) {
+      throw new Errors.Delete.TodoInstanceDoesNotExist({ uuAppErrorMap }, { awid })
+  }
+
+  if (uuTodos.state !== 'active') {
+      throw new Errors.Delete.TodoInstanceIsNotInProperState({ uuAppErrorMap }, 
+      { awid, currentState: uuTodos.state, expectedState: "active"})
+  }
+    // HDS 3
+    const getList = await this.dao.get(awid, dtoIn.id);
+    console.log(getList);
+    if (!getList) {
+    throw new Errors.Delete.ListDoesNotExist({ uuAppErrorMap }, {list: dtoIn.listId }, { awid })
+    };
+    // HDS 4
+    if (dtoIn.forceDelete === false) {
+      dtoIn.state = "active"; 
+      const activeTodo = await this.itemDao.list({ listId: dtoIn.id } );
+  
+      if (activeTodo.itemList.length) {
+        throw new Errors.Delete.ListContainsActiveItems({ uuAppErrorMap }, {
+          id: dtoIn.id,
+          itemList: activeTodo
+        })
+      }
+      }
+
+    // HDS 5
+      await this.itemDao.deleteManyByListId(awid, dtoIn.id);
+
+    // HDS 6
+      await this.dao.delete(awid, dtoIn.id);
+
+    // HDS 7
+
+     return {
+       uuAppErrorMap
+      };
   }
 
   async update(awid, dtoIn, uuAppErrorMap) {
@@ -74,7 +172,7 @@ class ListAbl {
       try {
         updatedList = await this.dao.update(uuObject);
       } catch (err) {
-          throw new Errors.Update.ListDaoUpdateFailed({ uuAppErrorMap }, err);
+          throw new Errors.Update.daoUpdateFailed({ uuAppErrorMap }, err);
       }
 
       // HDS 5 
@@ -157,7 +255,7 @@ class ListAbl {
         try {
             uuList = await this.dao.create(uuObject);
         } catch (err) {
-            throw new Errors.Create.ListDaoCreateFailed({ uuAppErrorMap }, err);
+            throw new Errors.Create.daoCreateFailed({ uuAppErrorMap }, err);
         }
 
         // HDS-5

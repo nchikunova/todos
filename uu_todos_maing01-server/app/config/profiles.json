@@ -48,6 +48,18 @@
       "item/setFinalState": {
         "sysStateList": ["active"],
         "profileList": ["Authorities","Executives"]
+      },
+      "item/delete": {
+        "sysStateList": ["active"],
+        "profileList": ["Authorities","Executives"]
+      },
+      "item/list": {
+        "sysStateList": ["active"],
+        "profileList": ["Authorities","Executives","Readers"]
+      },
+      "list/list": {
+        "sysStateList": ["active"],
+        "profileList": ["Authorities","Executives","Readers"]
       }
     }
   }

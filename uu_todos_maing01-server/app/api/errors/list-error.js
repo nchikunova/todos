@@ -159,13 +159,41 @@ const Delete = {
     constructor() {
       super(...arguments);
       this.code = `${Delete.UC_CODE}listContainsActiveItems`;
-      this.message = 	'List with given id does not exist.';
+      this.message = 	'List contains active items.';
     }
   },
 };  
 
 
+const List = {
+  UC_CODE: `${LIST_ERROR_PREFIX}list/`,
+  InvalidDtoIn: class extends TodosMainUseCaseError {
+    constructor() {
+      super(...arguments);
+      this.code = `${List.UC_CODE}invalidDtoIn`;
+      this.message = 	'DtoIn is not valid.';
+    }
+},
+TodoInstanceDoesNotExist: class extends TodosMainUseCaseError {
+  constructor() {
+    super(...arguments);
+    this.code = `${List.UC_CODE}todoInstanceDoesNotExist`;
+    this.message = 	'TodoInstance does not exist.';
+  }
+},
+
+TodoInstanceIsNotInProperState: class extends TodosMainUseCaseError {
+  constructor() {
+    super(...arguments);
+    this.code = `${List.UC_CODE}todoInstanceIsNotInProperState`;
+    this.message = 	'The application is not in proper state.';
+  }
+},
+
+}
+
 module.exports = {
+  List,
   Delete,
   Update,
   Get,

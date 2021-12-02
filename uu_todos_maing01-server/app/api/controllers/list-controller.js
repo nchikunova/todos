@@ -3,6 +3,10 @@ const ListAbl = require("../../abl/list-abl.js");
 
 class ListController {
 
+  list(ucEnv) {
+    return ListAbl.list(ucEnv.getUri().getAwid(), ucEnv.getDtoIn());
+  }
+
   delete(ucEnv) {
     return ListAbl.delete(ucEnv.getUri().getAwid(), ucEnv.getDtoIn());
   }

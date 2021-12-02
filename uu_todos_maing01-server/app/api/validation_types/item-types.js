@@ -20,6 +20,21 @@ const itemCreateDtoInType = shape({
   const itemSetFinalStateDtoInType = shape({
     id: id().isRequired(),
     state: oneOf(["completed", "cancelled"]).isRequired()
+  });
+
+  const itemDeleteDtoInType = shape({
+    id: id().isRequired()
+  });
+
+  const itemListDtoInType = shape({
+    listId: id(),
+    state: oneOf(["active", "completed", "cancelled"]),
+    pageInfo: shape({
+      pageIndex: integer(),
+      pageSize: integer()
+    })
   })
+
+
 
   

@@ -6,26 +6,122 @@ const { ValidationHelper } = require("uu_appg01_server").AppServer;
 const Errors = require("../api/errors/item-error.js");
 
 const WARNINGS = {
-  createUnsupportedKeys: {
+createUnsupportedKeys: {
     code: `${Errors.Create.UC_CODE}unsupportedKeys`
 },
 getUnsupportedKeys: {
   code: `${Errors.Get.UC_CODE}unsupportedKeys`
 },
+
+UpdateUnsupportedKeys: {
+  code: `${Errors.Update.UC_CODE}unsupportedKeys`
+},
 setFinalStateUnsupportedKeys: {
-  code: `${Errors.Get.UC_CODE}unsupportedKeys`
+  code: `${Errors.SetFinalState.UC_CODE}unsupportedKeys`
 },
 
+deleteUnsupportedKeys: {
+  code: `${Errors.Delete.UC_CODE}unsupportedKeys`
+},
+
+listUnsupportedKeys: {
+  code: `${Errors.List.UC_CODE}unsupportedKeys`
+},
+
+itemDoesNotExist: {
+  code: `${Errors.Delete.UC_CODE}itemDoesNotExist`,
+  message: 'Item with given id does not exist.'
+},
 };
 
 class ItemAbl {
 
   constructor() {
     this.validator = Validator.load();
-    this.dao = DaoFactory.getDao("item");
-    this.mainDao = DaoFactory.getDao("todoInstance");
-    this.listDao = DaoFactory.getDao("list");
+    this.dao = DaoFactory.getDao("item"); // todoItem
+    this.mainDao = DaoFactory.getDao("todoInstance"); // all App
+    this.listDao = DaoFactory.getDao("list"); //all todoItems
   }
+
+  async list(awid, dtoIn, uuAppErrorMap) {
+    // HDS 1
+    const validationResult = this.validator.validate("itemListDtoInType", dtoIn);
+    uuAppErrorMap = ValidationHelper.processValidationResult(
+        dtoIn,
+        validationResult,
+        WARNINGS.listUnsupportedKeys.code,
+        Errors.List.InvalidDtoIn
+        )    
+    // HDS 2
+
+  const todoInstance = await this.mainDao.getByAwid(awid);
+
+  if (!todoInstance) {
+  throw new Errors.List.TodoInstanceDoesNotExist({ uuAppErrorMap }, { awid })
+}
+
+  if (todoInstance.state !== 'active') {
+  throw new Errors.List.TodoInstanceIsNotInProperState({ uuAppErrorMap }, 
+  { awid, currentState: todoInstance.state, expectedState: "active"})
+}
+    // HDS 3
+  const { pageInfo, ...restDtoIn } = dtoIn;
+  const filter = { awid, ...restDtoIn };
+    const itemList = await this.dao.list(filter, pageInfo)
+    // HDS 4
+    return itemList
+  }
+
+  async delete(awid, dtoIn, uuAppErrorMap) {
+    // HDS 1
+    const validationResult = this.validator.validate("itemDeleteDtoInType", dtoIn);
+    uuAppErrorMap = ValidationHelper.processValidationResult(
+        dtoIn,
+        validationResult,
+        WARNINGS.deleteUnsupportedKeys.code,
+        Errors.Delete.InvalidDtoIn
+        )
+// HDS 2
+
+const todoInstance = await this.mainDao.getByAwid(awid);
+if (!todoInstance) {
+  throw new Errors.Delete.TodoInstanceDoesNotExist({ uuAppErrorMap }, { awid })
+}
+
+if (todoInstance.state !== 'active') {
+  throw new Errors.Delete.TodoInstanceIsNotInProperState({ uuAppErrorMap }, 
+  { awid, currentState: todoInstance.state, expectedState: "active"})
+}
+
+
+     // HDS 3
+
+     const getItem = await this.dao.get(awid, dtoIn.id);
+     console.log("🚀 ~ file: item-abl.js ~ line 103 ~ ItemAbl ~ delete ~ getItem", getItem)
+     if (!getItem) {
+      ValidationHelper.addWarning(
+        uuAppErrorMap,
+        WARNINGS.itemDoesNotExist.code,
+        WARNINGS.itemDoesNotExist.message,
+        { item: dtoIn.itemCode }
+      );   }
+
+   if (getItem && getItem.state !== 'completted') {
+    throw new Errors.Delete.ItemIsNotInCorectState({ uuAppErrorMap }, 
+    { awid, currentState: getItem.state, expectedState: ["active", "cancelled"]})
+}
+
+
+// HDS 4
+if (getItem) await this.dao.delete(awid, dtoIn.id)
+    
+// HDS 5
+
+return {
+uuAppErrorMap
+}
+  }
+
 
   async setFinalState(awid, dtoIn, uuAppErrorMap) {
     // HDS 1
