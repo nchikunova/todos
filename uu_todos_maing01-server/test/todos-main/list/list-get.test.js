@@ -3,6 +3,12 @@ const { TestHelper } = require("uu_appg01_server-test");
 const useCase = "list/get";
 const CMD = "list/get";
 
+
+afterEach(async () => {
+  await TestHelper.dropDatabase();
+  await TestHelper.teardown();
+})
+
 beforeEach(async () => {
   await TestHelper.setup();
   await TestHelper.initUuSubAppInstance();
@@ -10,9 +16,7 @@ beforeEach(async () => {
   await TestHelper.initUuAppWorkspace({ "uuAppProfileAuthorities": "urn:uu:GGPLUS4U", "code":"1454545", "name":"Nika" }) 
 });
 
-afterEach(async () => {
-  await TestHelper.teardown();
-});
+
 
 describe("Test list/get", () => {
   test("HDS", async () => {
@@ -25,5 +29,64 @@ describe("Test list/get", () => {
     const result = await TestHelper.executeGetCommand("list/get", {id: list.id}, session);
     expect(result.status).toEqual(200);
     expect(result.data.uuAppErrorMap).toBeDefined();
+  });
+  test("Test - TodoInstanceDoesNotExist", async () => {
+    let session = await TestHelper.login("Authorities", false, false);
+    const filter = `{awid: "${TestHelper.awid}"}`;
+    const params = `{$set: ${JSON.stringify({ awid: `ddddd` })}}`;
+    await TestHelper.executeDbScript(`db.todoInstance.findOneAndUpdate(${filter}, ${params});`);
+    let expectedError = {
+      code: `${CMD}/todoInstanceDoesNotExist`,
+      message: "TodoInstance does not exist.",
+      paramMap: { awid: TestHelper.awid},
+    };
+
+    expect.assertions(3);
+
+    try {
+      const list = await TestHelper.executePostCommand("list/create", {
+        name: "name"
+      }, session);
+      await TestHelper.executeGeCtommand("list/get", {
+        id: list.id
+      }, session);
+    } catch (error) {
+      expect(error.status).toEqual(400);
+      expect(error.message).toEqual(expectedError.message);
+
+      if (error.paramMap && expectedError.paramMap) {
+        expect(error.paramMap).toEqual(expectedError.paramMap);
+      }
+    }
+  });
+
+  test("Test - TodoInstanceIsNotInProperState", async () => {
+    let session = await TestHelper.login("Authorities", false, false);
+    const filter = `{awid: "${TestHelper.awid}"}`;
+    const params = `{$set: ${JSON.stringify({ state: `vfr` })}}`;
+    await TestHelper.executeDbScript(`db.todoInstance.findOneAndUpdate(${filter}, ${params});`);
+    let expectedError = {
+      code: `${CMD}/TodoInstanceIsNotInProperState`,
+      message: "The application is not in proper state.",
+      paramMap: { awid: TestHelper.awid, expectedState: "active", currentState: "vfr" },
+    };
+
+    expect.assertions(3);
+
+    try {
+      const list = await TestHelper.executePostCommand("list/create", {
+        name: "name"
+      }, session);
+      await TestHelper.executeGeCtommand("list/get", {
+        id: list.id
+      }, session);
+    }catch (error) {
+      expect(error.status).toEqual(400);
+      expect(error.message).toEqual(expectedError.message);
+
+      if (error.paramMap && expectedError.paramMap) {
+        expect(error.paramMap).toEqual(expectedError.paramMap);
+      }
+    }
   });
 });
